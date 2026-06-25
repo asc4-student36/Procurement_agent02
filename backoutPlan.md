@@ -15,10 +15,10 @@ and the test suite is passing.
 
 | Field | Value |
 |-------|-------|
-| Last stable commit hash | [run: `git log --oneline -1`] |
-| Last stable tag / version | [fill in if tagged; otherwise use commit hash] |
-| Date of last stable state | |
-| Verified by | |
+| Last stable commit hash | b0a0494 |
+| Last stable tag / version | b0a0494 |
+| Date of last stable state | 2026-06-25 |
+| Verified by | Ram |
 
 ---
 
@@ -129,9 +129,9 @@ pipeline, list the consumers here and notify them before reverting:
 
 | Role | Name | Contact |
 |------|------|---------|
-| Release Manager / Decision Maker | | |
-| Technical Lead | | |
-| Instructor / Supervisor | | |
+| Release Manager / Decision Maker | Ram | ramvigneshbabu.p.b@accenture.com |
+| Technical Lead | Raksha | 9566569001 |
+| Instructor / Supervisor | Ola | 9566569001 |
 
 ---
 
