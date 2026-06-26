@@ -161,6 +161,26 @@ def run_procurement_agent(request: PurchaseRequest) -> ProcurementRecommendation
             item for item in violations if item.get("forced_decision") == "escalate"
         ]
 
+        deny_policy_ids = {str(item.get("policy_id", "")) for item in deny_violations}
+        escalate_policy_ids = {str(item.get("policy_id", "")) for item in escalate_violations}
+
+        # When budget overage and near-director-threshold conditions occur together,
+        # escalate for director review instead of issuing a hard deny.
+        if "POL-008" in deny_policy_ids and "POL-003-NEAR" in escalate_policy_ids:
+            policy_ids = ", ".join(sorted(deny_policy_ids | escalate_policy_ids))
+            return ProcurementRecommendation(
+                request_id=request.request_id,
+                decision="escalate",
+                rationale=(
+                    "Budget check identified an overage while Policy compliance check "
+                    f"identified near-director-threshold review trigger(s): {policy_ids}. "
+                    f"The requested amount is ${request.total_amount:,.0f}, which requires "
+                    "manual leadership review rather than immediate denial. "
+                    "This request is escalated so procurement can resolve the combined "
+                    "budget and approval-threshold risk signals."
+                ),
+            )
+
         if deny_violations:
             policy_ids = ", ".join(str(item.get("policy_id", "")) for item in deny_violations)
             return ProcurementRecommendation(

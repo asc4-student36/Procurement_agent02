@@ -9,6 +9,19 @@ from data.loader import load_requests
 from models import PurchaseRequest
 
 
+PARAM_REQUEST_IDS = [
+    "REQ-006",
+    "REQ-007",
+    "REQ-008",
+    "REQ-009",
+    "REQ-010",
+    "REQ-011",
+    "REQ-001",
+    "REQ-002",
+    "REQ-003",
+]
+
+
 def _request_by_id(request_id: str) -> PurchaseRequest:
     """Load a sample request by ID from the real mock data files."""
     raw_request = next(item for item in load_requests() if item["request_id"] == request_id)
@@ -18,6 +31,12 @@ def _request_by_id(request_id: str) -> PurchaseRequest:
         if key in PurchaseRequest.model_fields
     }
     return PurchaseRequest.model_validate(payload)
+
+
+def _expected_outcome_by_id(request_id: str) -> str:
+    """Return expected_outcome for a sample request from mock data."""
+    raw_request = next(item for item in load_requests() if item["request_id"] == request_id)
+    return str(raw_request["expected_outcome"])
 
 
 async def _run_request(request_id: str):
@@ -61,6 +80,17 @@ async def test_agent_req_011_escalate() -> None:
     """REQ-011 should escalate due to compliance-flagged vendor."""
     result = await _run_request("REQ-011")
     assert result.data.decision == "escalate"
+    _assert_non_empty_rationale(result.data.rationale)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("request_id", PARAM_REQUEST_IDS)
+async def test_agent_expected_outcomes_from_sample_requests(request_id: str) -> None:
+    """Ensure agent decision matches expected_outcome for selected sample requests."""
+    expected = _expected_outcome_by_id(request_id)
+    result = await _run_request(request_id)
+
+    assert result.data.decision == expected
     _assert_non_empty_rationale(result.data.rationale)
 
 
